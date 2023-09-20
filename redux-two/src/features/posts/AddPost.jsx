@@ -1,20 +1,31 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { nanoid } from "@reduxjs/toolkit";
 import { postAdded } from "./postsSlice";
+import { selectAllUsers } from "../users/usersSlice";
 
 const AddPost = () => {
   const dispatch = useDispatch();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [userId, setUserId]=useState("");
+
+  const users = useSelector(selectAllUsers);
+
+  const usersOption = users.map(user=>(
+    <option key={user.id} value={user.id} >
+        {user.name}
+    </option>
+  ))
 
   const handleSubmit = () => {
     if (title && content) {
-      dispatch(postAdded({ id: nanoid(), title, content }));
+      dispatch(postAdded(title,content, userId));
       setTitle("");
       setContent("");
     }
   };
+
+  const canSave = Boolean(title) && Boolean(content) && Boolean(userId)
 
   return (
     <>
@@ -40,7 +51,13 @@ const AddPost = () => {
             onChange={(e) => setContent(e.target.value)}
             placeholder="Add Content"
           />
-          <button type="submit">Add Post</button>
+
+            <select value={userId} onChange={e=>setUserId(e.target.value)} >
+                <option value="" ></option>
+                {usersOption}
+            </select>
+
+          <button type="submit"  disabled={!canSave}>Add Post</button>
         </form>
       </section>
     </>
